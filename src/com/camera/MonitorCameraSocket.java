@@ -164,9 +164,10 @@ public class MonitorCameraSocket extends Thread
              }
             else if (function  == 5)
             {
-           	out.writeUTF("reSetPicNumber");
-           	out.writeUTF(String.valueOf(PicCount));            	
+            	out.writeUTF("reSetPicNumber");
+            	out.writeUTF(String.valueOf(PicCount));            	
             }
+            
         } catch (java.io.IOException e) {
         	System.out.println("IOException :" + e.toString());
            IsOK = false;

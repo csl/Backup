@@ -22,7 +22,7 @@ public class Main extends JFrame
 
 	static int CameraNum = 3;
 	
-	private Main my = this;
+	static Main my;
 
 	static int CameraTakePictureNumber = 0;
 	//ProfileDialog pd = new ProfileDialog();
@@ -32,7 +32,7 @@ public class Main extends JFrame
 	private int count = 0;
 	private boolean [] syncT;
 	public String root_path = "/home/shulong/camera/";
-	private int CTakePicture;
+	public int CTakePicture;
 	
 	//TOP
 	protected JMenu jMenuFile = null;
@@ -61,7 +61,7 @@ public class Main extends JFrame
 	protected JPanel jPanelCameraTabContext = null;
 	protected JPanel jPanelCameraTabContextDetail = null;
 	protected JPanel jPanelInCameraTab = null;
-	private JTextField[] JTextF; 
+	public JTextField[] JTextF; 
 	private JLabel[] JSpLabel; 
 	private JTextField[] JTextSec; 
 	private JLabel[] JSpLabelSec; 
@@ -113,16 +113,14 @@ public class Main extends JFrame
 	public Main(int num, String path) 
 	{
 		super();
+		
+		my = this;
+		
 		CameraNum = num;
 		root_path = path;
 		timer_size = 0;
-		initialize();
 
-		camerGroupList = new ArrayList<CameraGroup>();
-		BchkSec = new boolean[CameraNum];
-		timer = new Timer[CameraNum];
-		
-		
+		initialize();
 		splasher.hide();
 	}
 
@@ -134,6 +132,15 @@ public class Main extends JFrame
 	public void initialize() 
 	{
 		int _programNum = CameraNum;
+
+		camerGroupList = new ArrayList<CameraGroup>();
+		BchkSec = new boolean[_programNum];
+		timer = new Timer[_programNum];
+
+		for (int i=0; i<_programNum; i++)
+		{
+			timer[i] = new Timer(true);			
+		}
 		
 		JTextF = new JTextField[_programNum]; 
 		JSpLabel = new JLabel[_programNum]; 
@@ -256,7 +263,7 @@ public class Main extends JFrame
 							{
 								CameraGroup mcameragroup = item;
 								int sec_d = mcameragroup.getTimeSec();
-								timer[timer_size].schedule(new DateTask(count), sec_d);
+								timer[timer_size].schedule(new DateTask(count), sec_d * 1000);
 								timer_size++;
 								count++;
 							}
@@ -356,6 +363,7 @@ public class Main extends JFrame
 		JSpLabel[i].setBounds(new Rectangle(0, i*40 + 20, 45, 27));
 		
 		JTextF[i] = new JTextField();
+		JTextF[i].setText("192.168.123.100");
 		JTextF[i].setBounds(new Rectangle(30, i*40 + 20, 100, 22));
 		
 		JSpLabelSec[i] = new JLabel();
@@ -363,6 +371,7 @@ public class Main extends JFrame
 		JSpLabelSec[i].setBounds(new Rectangle(0 + 140, i*40 + 20, 45, 27));
 		
 		JTextSec[i] = new JTextField();
+		JTextSec[i].setText("10");
 		JTextSec[i].setBounds(new Rectangle(30 + 140, i*40 + 20, 50, 22));
 
 		jLabelSyunStatus[i] = new JLabel();
@@ -643,69 +652,16 @@ public class Main extends JFrame
 								{
 									CameraGroup mcameragroup = item;
 									int sec_d = mcameragroup.getTimeSec();
-									timer[timer_size].schedule(new DateTask(count), sec_d);
+									System.out.println("group sec: " + sec_d);
+									timer[timer_size].schedule(new DateTask(count), sec_d * 1000, sec_d * 1000);
 									timer_size++;
 									count++;
 								}
-							
-								
-								
-/*								
-								int port = 12121;
-								CTakePicture = 0;
-								for (int i=0; i<CameraNum; i++)
-								{
-									newSocket[i] = new MonitorCameraSocket(i, my);
-									newSocket[i].SetAddressPort(JTextF[i].getText() , port);
-									newSocket[i].SetFunction(4);
-									newSocket[i].SetCount(CameraTakePictureNumber);									
-								}
-
-								//Start
-								for (int i=0; i<CameraNum; i++)
-								{
-									newSocket[i].start();
-								}
-
-								int count = 0;
-								while (true)
-								{
-									if (newSocket[count].isAlive() == true)
-									{
-										count++;
-									}
-									
-									if (CameraNum == count) break;
-								}
-								
-								System.out.println(Integer.valueOf(CTakePicture));
-								
-								if (CTakePicture == 1)
-								{
-									for (int i=0; i<CameraNum; i++)
-									{
-										newSocket[i] = new MonitorCameraSocket(i, my);
-										newSocket[i].SetAddressPort(JTextF[i].getText() , port);
-										newSocket[i].SetFunction(4);
-										newSocket[i].SetCount(CameraTakePictureNumber);									
-									}									
-									
-									for (int i=0; i<CameraNum; i++)
-									{
-										newSocket[i].start();
-									}
-									
-								}
-								else
-								{
-								CameraTakePictureNumber++;
-								System.out.println("CameraTakePictureNumber: " + CameraTakePictureNumber);
-								}
-							*/	
 							} catch (Exception ec) {
+								ec.printStackTrace();
 							}
 							
-          	    			jLabelStatus.setText("Take Picture Success.");
+          	    			//jLabelStatus.setText("Take Picture Success.");
           	    			
 						}
 					});

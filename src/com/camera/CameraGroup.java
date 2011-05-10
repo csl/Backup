@@ -69,7 +69,7 @@ public class CameraGroup
         {
         	return TakePicNum;
         }
-        public void refleshTakePicNum()
+        public void incTakePicNum()
         {
         	TakePicNum++;
         }

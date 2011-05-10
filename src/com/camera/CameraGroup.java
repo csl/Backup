@@ -7,6 +7,7 @@ import javax.swing.*;
 
 public class CameraGroup
 {
+		private int GroupID;
 		static int MAX = 255;
 		private int TimeSec;
 		private int [] ID;
@@ -16,8 +17,9 @@ public class CameraGroup
 		private int TakePicNum;
 		private boolean HasData;
 	
-        public CameraGroup(int s) 
+        public CameraGroup(int s,int GID) 
         {
+        	GroupID = GID;
         	TimeSec = s;
         	ID = new int[MAX];
         	ID_Size = 0;
@@ -25,6 +27,11 @@ public class CameraGroup
         	right_index = 0;
         	TakePicNum = 0;
         	HasData = false;
+        }
+
+        public int getGroupID()
+        {
+        	return GroupID;
         }
         
         public int getTimeSec()
@@ -51,7 +58,7 @@ public class CameraGroup
         {
         	return left_index;
         }
-        public void refleshLindex()
+        public void incLindex()
         {
         	left_index++;
         }
@@ -60,7 +67,7 @@ public class CameraGroup
         {
         	return right_index;
         }
-        public void refleshRindex()
+        public void incRindex()
         {
         	right_index++;
         }

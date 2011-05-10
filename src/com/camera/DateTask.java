@@ -73,6 +73,8 @@ public class DateTask extends TimerTask
 		else
 		{
 			groupd.incTakePicNum();
+			groupd.incRindex();
+			groupd.SetHasData();
 			System.out.println("CameraTakePictureNumber: " + groupd.getTakePicNum());
 		}
     }

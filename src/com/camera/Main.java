@@ -30,7 +30,7 @@ public class Main extends JFrame
 	private JFrame frame;
 	static public String IMEI;
 	private int count = 0;
-	private boolean [] syncT;
+	public boolean [] syncT;
 	public String root_path = "/home/shulong/camera/";
 	public int CTakePicture;
 	
@@ -237,13 +237,15 @@ public class Main extends JFrame
 					.addActionListener(new java.awt.event.ActionListener() {
 						public void actionPerformed(java.awt.event.ActionEvent e) 
 						{
+							int gid=0;
 							//camerGroupList
 							for (int i=0; i<CameraNum; i++)
 							{
 								if (BchkSec[i] == true) continue;
 								
 								String sec = JTextSec[i].getText();
-								CameraGroup mcameragroup = new CameraGroup(Integer.valueOf(sec));
+								CameraGroup mcameragroup = new CameraGroup(Integer.valueOf(sec), gid);
+								gid ++;
 								mcameragroup.addID(i);
 								
 								for (int j=i+1; j<CameraNum; j++)
@@ -625,14 +627,15 @@ public class Main extends JFrame
 						public void actionPerformed(java.awt.event.ActionEvent e) {
 		  	    			jLabelStatus.setText("");
 							try {
-								
+								int gid=0;
 								//camerGroupList
 								for (int i=0; i<CameraNum; i++)
 								{
 									if (BchkSec[i] == true) continue;
 									
 									String sec = JTextSec[i].getText();
-									CameraGroup mcameragroup = new CameraGroup(Integer.valueOf(sec));
+									CameraGroup mcameragroup = new CameraGroup(Integer.valueOf(sec), gid);
+									gid++;
 									mcameragroup.addID(i);
 									
 									for (int j=i+1; j<CameraNum; j++)
@@ -674,100 +677,20 @@ public class Main extends JFrame
 		if (JButtonSyncData == null) {
 			JButtonSyncData = new JButton();
 			JButtonSyncData.setIcon(new ImageIcon("images/syncdata.png"));
-			JButtonSyncData.setToolTipText("SyncData");
+			JButtonSyncData.setToolTipText("StopTakePic");
 			JButtonSyncData.setBounds(new Rectangle(140, 0, 58, 33));
 			JButtonSyncData
 			.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) 
 				{
-  	    			 jLabelStatus.setText("");
-          	        final LoadData load = new LoadData();
-          	        load.endValue = CameraTakePictureNumber * CameraNum;
-
-          	        final JProgressView lb = new JProgressView("sync data");
-          	        lb.setLoadObj(load);
-          	        lb.startLoad();
-          	        
-          	        //start
-          	        Thread tl = new Thread()
-          	         {
-          	        	 LoadData lobj = load;
-               		 int recieve_port = 12124;
-               		 int port = 12121;
-
-               		 public void run()
-          	             {
-                   		   try {
-        			           //Open Socket Waiting
-        		        	    ServerSocket serverSkt = new ServerSocket(recieve_port);
-        			           while (CameraTakePictureNumber > count)
-        			             {
-        				          	 //prepare directory
-        				    	     String fileName = root_path + "/" + count + "/" + Main.IMEI  + "-" + count  + ".jpg" ;
-        				    	     File directory = new File(root_path + "/" + count);
-
-        			            	  BufferedInputStream inputStream;
-        			            	  BufferedOutputStream outputStream;
-        				    	        
-        					         if (!directory.exists()) 
-        						               directory.mkdirs();
-
-        				    	      System.out.println("fileName: " + fileName);
-        					            
-        					          for (int i=0; i<CameraNum; i++)
-        					           {
-        					        	   if (syncT[i] == false) continue;
-        					        	   
-        			            		  //Send message for request
-        			            		  Socket client = new Socket();
-        			            		  InetSocketAddress isa = new InetSocketAddress(JTextF[i].getText() , port);
-        			            		  client.connect(isa, 10000);
-        			            		  DataOutputStream out = new DataOutputStream(client.getOutputStream());
-        				            	  
-        				            	  out.writeUTF("getPicData");            	            	
-        				            	  out.writeUTF(Integer.toString(count)); 
-        				            	  
-        				            	  //waiting pic data
-        				            	  Socket clientSkt = serverSkt.accept();
-        					                
-        					             System.out.printf("%s connect to \n", 
-        					                        clientSkt.getInetAddress().toString());  
-        					 
-        					             inputStream = 
-        					                    new BufferedInputStream(clientSkt.getInputStream()); 
-        					                
-        					             outputStream = 
-        					                    new BufferedOutputStream(new FileOutputStream(fileName)); 
-        					 
-        					             int bufferSize = 1024;
-        					             byte[] buffer = new byte[bufferSize];
-        					             int length;
-        					 
-        					             while((length = inputStream.read(buffer)) != -1)
-        					               {
-        					              	  	outputStream.write(buffer, 0, length);
-        					               }
-        					 
-        						          outputStream.flush();
-        						          outputStream.close();                
-        						          inputStream.close(); 
-        						          clientSkt.close();
-        						          lobj.currentProeess++;
-        				           	    }
-        					          count++;
-        						}
-
-         	           	   serverSkt.close();
-	          	    		   lb.stopLoad();
-	          	    		   lb.clear();
-	          	    			jLabelStatus.setText("Sync Picture Success.");
-        					} catch (Exception ec) {
-        					}
-          	             }
-          	        };
-          	        
-          	       tl.start();
-          	       
+	    			jLabelStatus.setText("");
+					
+					for (int i=0; i<timer_size; i++)
+					{
+						timer[i].cancel();			
+					}          	       
+					
+					jLabelStatus.setText("Take Picture STOP.");
 				}
 			});
 		}

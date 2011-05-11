@@ -41,7 +41,7 @@ public class SyncDataThread extends Thread
 			             {
 				          	 //prepare directory
 				    	     String fileName = Main.my.root_path + "/" + groupd.getGroupID() + "/" + count + "/" + Main.IMEI  + "-" + count  + ".jpg" ;
-				    	     File directory = new File(Main.my.root_path + "/" + count);
+				    	     File directory = new File(Main.my.root_path + "/" + groupd.getGroupID() + "/" + count);
 
 			            	  BufferedInputStream inputStream;
 			            	  BufferedOutputStream outputStream;

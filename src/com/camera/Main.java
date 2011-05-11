@@ -362,7 +362,7 @@ public class Main extends JFrame
 		
 		JSpLabel[i] = new JLabel();
 		JSpLabel[i].setText("IP");
-		JSpLabel[i].setBounds(new Rectangle(0, i*40 + 20, 45, 27));
+		JSpLabel[i].setBounds(new Rectangle(0, i*40 + 20, 60, 28));
 		
 		JTextF[i] = new JTextField();
 		JTextF[i].setText("192.168.123.100");
@@ -690,8 +690,121 @@ public class Main extends JFrame
 						timer[i].cancel();			
 					}          	       
 					
-					jLabelStatus.setText("Take Picture STOP.");
-				}
+					//sync data
+ 	    			jLabelStatus.setText("");
+ 	    			int group_size = Main.camerGroupList.size();
+ 					for (int i=0; i<group_size; i++)
+ 					{
+ 						
+						final CameraGroup groupd = Main.camerGroupList.get(i);
+						
+						if (!groupd.getHasData()) continue;
+						
+			          final LoadData load = new LoadData();
+			           	
+			          final JProgressView lb = new JProgressView("sync data");
+						final int start_index = groupd.getLindex();
+						final int CNumber = groupd.getRindex();
+						
+						load.endValue = CNumber;
+
+						lb.setLoadObj(load);
+						lb.startLoad();
+           	        
+						//start
+						Thread tl = new Thread()
+           	         	{
+           	        LoadData lobj = load;
+                		 int recieve_port = 12124;
+                		 int port = 12121;
+                		 int count = start_index;
+                		 int CameraTakePictureNumber = CNumber;
+
+                		 public void run()
+           	             {
+                	       		try {
+                				           //Open Socket Waiting
+                	       		    		ServerSocket serverSkt = new ServerSocket(recieve_port);
+                	       		    		
+                	       		    		System.out.println("count: " + count);
+                	       		    		while (CameraTakePictureNumber > count)
+                				               {
+                    	       		    	 System.out.println("CameraTakePictureNumber: " + CameraTakePictureNumber);
+                    	       		    	 System.out.println("count: " + count);
+                					          	 
+                    	       		    	 //prepare directory
+                					    	     String fileName = Main.my.root_path + "/" + groupd.getGroupID() + "/" + count + "/" + Main.IMEI  + "-" + count  + ".jpg" ;
+                					    	     File directory = new File(Main.my.root_path + "/" + groupd.getGroupID() + "/" + count);
+
+                				            	  BufferedInputStream inputStream;
+                				            	  BufferedOutputStream outputStream;
+                					    	        
+                						         if (!directory.exists()) 
+                							               directory.mkdirs();
+
+                					    	      System.out.println("save fileName: " + fileName);
+                						            
+                						          for (int i=0; i<groupd.getIDSize(); i++)
+                						           {
+                						        	  int index = groupd.getID(i);
+                						        	  
+                						        	   if (Main.my.syncT[index] == false) continue;
+                						        	   
+                				            		  //Send message for request
+                				            		  Socket client = new Socket();
+                				            		  InetSocketAddress isa = new InetSocketAddress(Main.my.JTextF[index].getText() , port);
+                				            		  client.connect(isa, 10000);
+                				            		  DataOutputStream out = new DataOutputStream(client.getOutputStream());
+                					            	  
+                					            	  out.writeUTF("getPicData");            	            	
+                					            	  out.writeUTF(Integer.toString(count)); 
+                					            	  
+                					            	  //waiting pic data
+                					            	  Socket clientSkt = serverSkt.accept();
+                						                
+                						             System.out.printf("%s connect to \n", 
+                						                        clientSkt.getInetAddress().toString());  
+                						 
+                						             inputStream = 
+                						                    new BufferedInputStream(clientSkt.getInputStream()); 
+                						                
+                						             outputStream = 
+                						                    new BufferedOutputStream(new FileOutputStream(fileName)); 
+                						 
+                						             int bufferSize = 1024;
+                						             byte[] buffer = new byte[bufferSize];
+                						             int length;
+                						 
+                						             while((length = inputStream.read(buffer)) != -1)
+                						               {
+                						              	  	outputStream.write(buffer, 0, length);
+                						               }
+                						 
+                							          outputStream.flush();
+                							          outputStream.close();                
+                							          inputStream.close(); 
+                							          clientSkt.close();
+                    						          lobj.currentProeess++;
+                					           	    }
+                						          count++;
+                							}
+
+                	          	    		lb.stopLoad();
+                	          	    		lb.clear();
+                	       		    	serverSkt.close();
+                						}
+                	       		    	catch (Exception ec)
+                						{
+                	       		    		ec.printStackTrace();
+                						}
+                			 jLabelStatus.setText("Take Picture STOP.");
+           	             }
+ 				 };
+          	    tl.start();
+			}
+     	}
+
+			
 			});
 		}
 		return JButtonSyncData;
